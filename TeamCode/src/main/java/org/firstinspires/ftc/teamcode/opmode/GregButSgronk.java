@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -40,7 +41,7 @@ public class GregButSgronk extends LinearOpMode
             liftControl(); /* Controls lift servos */
             carouselControl(); /* Controls carousel */
             clawControl(); /*Controls lift and turret by dpad */
-            greg.locomotionControl(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, sensitivity[sensiInc]); /* Controls Movement motors */
+            greg.locomotionControl(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, sensitivity[sensiInc]); /* Controls Movement motors */
             
             telemetry.addData("Status of Greg", "Sgronk");
             telemetry.addData("Sensitivity", sensitivity[sensiInc]);
@@ -82,7 +83,7 @@ public class GregButSgronk extends LinearOpMode
     }
 
     private void liftControl(){
-        greg.lift(gamepad2.left_stick_y);
+        greg.lift(-gamepad2.left_stick_y);
     }
 
     /**
@@ -124,14 +125,11 @@ public class GregButSgronk extends LinearOpMode
      * Controls the carousel wheel, X is default rotation, Y is opposite
      */
     private void carouselControl(){
-        telemetry.addData("Timer", carTimer.seconds());
-        telemetry.addData("Motor Speed", greg.MotorCarousel.getPower());
         if(gamepad2.x)
-            greg.carousel((float)carTimer.seconds()*5);
+            greg.carousel(true);
         else if(gamepad2.y)
-            greg.carousel(-(float)carTimer.seconds()*5);
+            greg.carousel(false);
         else
-            carTimer.reset();
             greg.carousel(0);
     }
 }

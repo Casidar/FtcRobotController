@@ -20,7 +20,7 @@ public class TensorTest extends LinearOpMode {
             "Marker"
     };
 
-    private static final String TFOD_TEAMOBJECT = "Object.tflite";
+    private static final String TFOD_TEAMOBJECT = "model.tflite";
     private static final String[] LABEL = {
             "Object"
     };
@@ -46,24 +46,24 @@ public class TensorTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+        while (opModeIsActive()) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                        // step through the list of recognitions and display boundary info.
-                        int i = 0;
-                        for (Recognition recognition : updatedRecognitions) {
-                            telemetry.addData(String.format("%s (%d)", recognition.getLabel(), i), String.format("(%.0f, %.0f)", (recognition.getLeft()+recognition.getRight())/2, (recognition.getTop()+recognition.getBottom())/2));
-                            i++;
-                        }
-                        telemetry.update();
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("%s (%d)", recognition.getLabel(), i), String.format("(%.0f, %.0f)", (recognition.getLeft()+recognition.getRight())/2, (recognition.getTop()+recognition.getBottom())/2));
+                        i++;
                     }
+                    telemetry.update();
                 }
             }
+        }
     }
 
     /**
@@ -90,6 +90,6 @@ public class TensorTest extends LinearOpMode {
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_TEAMOBJECT, LABEL);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }

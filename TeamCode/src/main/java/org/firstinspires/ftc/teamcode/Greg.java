@@ -47,6 +47,10 @@ public class Greg {
     public Servo ServoClawUp;
     public Servo ServoClawOpen;
 
+    public float locoSpeed = 1;
+
+    public enum Side {RED, BLUE};
+
     public Greg(@NonNull HardwareMap hardwareMap){
         /* Sets motor variables */
         MotorLeftFront = hardwareMap.get(DcMotor.class, "leftFront");
@@ -69,7 +73,6 @@ public class Greg {
         MotorLeftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorRightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorRightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        MotorCarousel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         MotorLift.setDirection(DcMotorSimple.Direction.REVERSE);
         /* Sets motors to run with encoders */
@@ -81,12 +84,53 @@ public class Greg {
         MotorLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    /**
+     * Controls the locomotion of Greg
+     * @param horiPower strafing power
+     * @param vertPower forward power
+     * @param turnPower turning power
+     * @param speed power multiplier
+     */
     public void locomotionControl(float horiPower, float vertPower, float turnPower, float speed){
         /* Sets motor values using the values received */
         MotorLeftFront.setPower(speed*(vertPower-horiPower+turnPower));
         MotorLeftBack.setPower(speed*(vertPower+horiPower+turnPower));
         MotorRightFront.setPower(speed*(-vertPower-horiPower+turnPower));
         MotorRightBack.setPower(speed*(-vertPower+horiPower+turnPower));
+    }
+
+    /**
+     * Controls the locomotion of Greg with preset speed
+     * @param horiPower strafing power
+     * @param vertPower forward power
+     * @param turnPower turning power
+     */
+    public void locomotionControl(float horiPower, float vertPower, float turnPower){
+        /* Sets motor values using the values received */
+        MotorLeftFront.setPower(locoSpeed*(vertPower+horiPower+turnPower));
+        MotorLeftBack.setPower(locoSpeed*(vertPower-horiPower+turnPower));
+        MotorRightFront.setPower(locoSpeed*(-vertPower+horiPower+turnPower));
+        MotorRightBack.setPower(locoSpeed*(-vertPower-horiPower+turnPower));
+    }
+
+    public void autoLocoControl(float horiPower, float vertPower, float turnPower, long time){
+        MotorLeftFront.setPower(locoSpeed*(vertPower+horiPower+turnPower));
+        MotorLeftBack.setPower(locoSpeed*(vertPower-horiPower+turnPower));
+        MotorRightFront.setPower(locoSpeed*(-vertPower+horiPower+turnPower));
+        MotorRightBack.setPower(locoSpeed*(-vertPower-horiPower+turnPower));
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        MotorLeftFront.setPower(0);
+        MotorLeftBack.setPower(0);
+        MotorRightFront.setPower(0);
+        MotorRightBack.setPower(0);
+    }
+
+    public void setSpeed(float speed){
+        this.locoSpeed = speed;
     }
 
     public void locomotionBreak(){
@@ -106,59 +150,12 @@ public class Greg {
     }
 
     public void lift(float speed){
-        MotorLift.setPower(speed * liftSpeed);
+        MotorLift.setPower(-speed * liftSpeed);
     }
 
     public void turret(float speed){
         ServoTurret.setPower(speed * turretSpeed);
     }
-
-//    public void liftControl(boolean direction){
-//        if(liftThread.isAlive()){
-//            return;
-//        }
-//        liftThread = new Thread(() -> {
-//            if(direction){
-//                if(MotorLift.getCurrentPosition() > liftPosUp-10){
-//                    MotorLift.setTargetPosition(liftPosCen);
-//                }
-//                else{
-//                    MotorLift.setTargetPosition(liftPosUp);
-//                }
-//            }
-//            else{
-//                if(MotorLift.getCurrentPosition() < liftPosUp+10){
-//                    MotorLift.setTargetPosition(liftPosCen);
-//                }
-//                else{
-//                    MotorLift.setTargetPosition(liftPosDown);
-//                }
-//            }
-//            MotorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            while(MotorLift.isBusy());
-//            MotorLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        });
-//        liftThread.start();
-//    }
-//
-//    public void turretControl(boolean direction){
-//        if(turretThread.isAlive()){
-//            return;
-//        }
-//        turretThread = new Thread(() -> {
-//            ElapsedTime timer = new ElapsedTime();
-//            if(direction){
-//                ServoTurret.setPower(1);
-//            }
-//            else{
-//                ServoTurret.setPower(-1);
-//            }
-//            timer.reset();
-//            while((direction && timer.seconds() < turretTimeRight) || (!direction && timer.seconds() < turretTimeLeft));
-//            ServoTurret.setPower(0);
-//        });
-//        turretThread.start();
-//    }
 
     public void intake(float speed){
         ServoIntake0.setPower(-speed);
